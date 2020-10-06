@@ -19,7 +19,7 @@ public class PixelGeometryGenerator extends JPanel {
 		}
 
 		// feeding PixelArray
-		PixelCircle(30, 30, 30);
+		PixelCircle(30, 30, 90);
 		PixelCircle(20, 10, 20);
 		
 		// showing PixelArray in a graphical matrice
@@ -70,13 +70,14 @@ public class PixelGeometryGenerator extends JPanel {
 			C = Math.sqrt(Math.pow(Rayon,2)-Math.pow(D,2));
 			segment = (int) Math.floor(C);
 
-			if (x+step>=0 && x+step<=99) 
+			if (x+step>=0 && x+step<=99) {
 				for (int s=0; s<segment; s++)
 					if (y+s >=0 && y+s<=99)
 						PixelArray[x+step][y+s]=true;
 				for (int s=0; s<segment; s++)
 					if (y-s >=0 && y-s<=99)
 						PixelArray[x+step][y-s]=true;
+			}
 		}
 	}
 
