@@ -48,6 +48,7 @@ public class PixelGeometryGenerator extends JPanel {
 			}
 		}
 
+        // we save the result in a png image for control of the process
 		try {imageIoWrite("save");} catch (IOException e) {}
 	}
 
