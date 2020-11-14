@@ -1,5 +1,3 @@
-package automationPoleEmploi;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -21,14 +19,14 @@ public class paintWordCloud {
 	public static void main(String path, int width, int height) throws IOException {
 		CurrentImageWidth=width;
 		CurrentImageHeight=height;
-		Finalpaint(path, overlapManaged(initialPlacement()), width, height);
+		Finalpaint(path, overlapManaged(initialPlacement(path)), width, height);
 	}
 
 	// convert data from CSV to array : add defaults coords
 	// random rotate, appropriate FontSize, and compute width
 	// and height for the overlap management
-	public static int[][] initialPlacement() throws IOException {
-		words = readCSV.loadFile("motscles.csv");
+	public static int[][] initialPlacement(String path) throws IOException {
+		words = readCSV.loadFile(path);
 		int[] textSize = {0,0};
 		int fontSize[] = FontSize(words);
 
@@ -77,7 +75,7 @@ public class paintWordCloud {
 		int currentFreq1;
 		int currentFreq2;
 
-		int maxFreq=0;
+		int maxFreq=1;
 		int minFreq=1;
 
 		// determine the max and min frequency
@@ -102,7 +100,7 @@ public class paintWordCloud {
 		for (int f=0; f<ArrayWords[0].length; f++) {
 			sizeFont[f]=averageFont*Integer.valueOf(ArrayWords[1][f])*10;
 		}
-		return sizeFont ;
+		return sizeFont;
 	}
 
 	// determine the size of the text zone of one word based
@@ -111,14 +109,19 @@ public class paintWordCloud {
 		int[] Textsize= {0,0};
 
 		long charNb=word.chars().count();
-		Textsize[0]=(int) (charNb*fontSize); // width
+		Textsize[0]=(int) (charNb*(fontSize/2)); // width
 		Textsize[1]=(int) (fontSize); 		 // height
 
 		return Textsize;
 	}
 	
 	// the effective textWriting
-	private static void textWrite(String string, int FontSize, int x, int y, int rotate, Graphics g2) {
+	private static void textWrite(String string, int FontSize,
+								  int x, int y,
+								  int rotate,
+								  int width, int height,
+								  Graphics g2) {
+		
 		// todo : randomize color
 		Color BleuCiel = new Color(45, 142, 247);
 
@@ -131,6 +134,10 @@ public class paintWordCloud {
 		g2.setFont(rotatedFont);
 
 		g2.drawString(string, x, y);
+		
+		// draw a text box to help calibrate the overlap management later
+		if (rotate==0) g2.drawRect(x, y-height, width, height);
+		if (rotate==90) g2.drawRect(x, y, width, height);
 	}
 
 	static void Finalpaint(String path, int[][] coordWords, int ImageWidth, int ImageHeight) {		
@@ -139,7 +146,20 @@ public class paintWordCloud {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		for (int w=0; w<coordWords[0].length; w++) {
-			textWrite(words[0][w], coordWords[4][w], coordWords[0][w], coordWords[1][w], coordWords[5][w], g2);
+			if (coordWords[5][w]==0) {  // mot horizontal
+				textWrite(words[0][w], coordWords[4][w],  // string, fontSize
+						  coordWords[0][w], coordWords[1][w], // x, y
+					      coordWords[5][w], // rotate
+					      coordWords[2][w], coordWords[3][w], // width, height
+					      g2);
+			}
+			if (coordWords[5][w]==90) { // mot vertical
+				textWrite(words[0][w], coordWords[4][w], // string, fontSize
+						  coordWords[0][w], coordWords[1][w], // x, y
+						  coordWords[5][w], // rotate
+						  coordWords[3][w], coordWords[2][w], // height, width ;)
+						  g2);
+			}			
 		}
 		
 		try { ImageIO.write(image, "png", new File("test.png")); } catch (IOException e) {}
