@@ -60,9 +60,12 @@ public class paintWordCloud {
 			coordWordsCorrected[1][c] = placement.nextInt(CurrentImageHeight);
 
 			for (int o=0; o<coordWords[0].length; o++) {
-				if (coordWordsCorrected[0][c] < coordWords[0][o]) {
-					coordWordsCorrected[0][c] = 0;
-					coordWordsCorrected[1][c] = 0;
+				if (coordWordsCorrected[0][c] == coordWords[0][o]) {
+					coordWordsCorrected[0][c] = coordWords[0][c]+coordWords[2][c];
+				}
+
+				if (coordWordsCorrected[1][c] == coordWords[1][o]) {
+					coordWordsCorrected[1][c] = coordWords[1][c]+coordWords[3][c];
 				}
 			}
 		}
@@ -75,7 +78,7 @@ public class paintWordCloud {
 		int currentFreq1;
 		int currentFreq2;
 
-		int maxFreq=1;
+		int maxFreq=0;
 		int minFreq=1;
 
 		// determine the max and min frequency
@@ -93,12 +96,12 @@ public class paintWordCloud {
 			}
 		}
 
-		// calculate the font size base of the
-		// min, max freq and the freq of the word
-		int averageFont = (maxFreq+minFreq)/2;
-
+		// as the maxFont is 100, we range our words to fit in
+		int ratio=80/(maxFreq-minFreq);
+		
 		for (int f=0; f<ArrayWords[0].length; f++) {
-			sizeFont[f]=averageFont*Integer.valueOf(ArrayWords[1][f])*10;
+			sizeFont[f]=(ratio*Integer.valueOf(ArrayWords[1][f]))+20;
+			System.out.println(sizeFont[f]);
 		}
 		return sizeFont;
 	}
