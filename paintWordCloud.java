@@ -50,26 +50,42 @@ public class paintWordCloud {
 	}
 	
 	public static int[][] overlapManaged(int[][] coordWords) {
-		int[][] coordWordsCorrected = coordWords;
-
 		Random placement = new Random();
 		placement.setSeed(40);
-
+		
+		// placer d'abord les mots verticaux au hasard
 		for (int c=0; c<coordWords[0].length; c++) {
-			coordWordsCorrected[0][c] = placement.nextInt(CurrentImageWidth);
-			coordWordsCorrected[1][c] = placement.nextInt(CurrentImageHeight);
+			if (coordWords[5][c]==90) {
+				coordWords[0][c] = placement.nextInt(CurrentImageWidth-coordWords[3][c]);
+				coordWords[1][c] = placement.nextInt(CurrentImageHeight-coordWords[2][c]);
+			}
+			if (coordWords[5][c]==0) {
+				coordWords[0][c] = placement.nextInt(CurrentImageWidth-coordWords[2][c]);
+				coordWords[1][c] = placement.nextInt(CurrentImageHeight-coordWords[3][c]);
+			}
+		}
 
-			for (int o=0; o<coordWords[0].length; o++) {
-				if (coordWordsCorrected[0][c] == coordWords[0][o]) {
-					coordWordsCorrected[0][c] = coordWords[0][c]+coordWords[2][c];
+		// decaler les mots si ils sont trop pres les uns des autres
+		for (int o=0; o<coordWords[0].length; o++) {
+			if (coordWords[5][o]==90) {
+				for (int t=0; t<coordWords[0].length; t++) {
+					if (o!=t && coordWords[0][o] > coordWords[0][t] &&
+						coordWords[0][o] < coordWords[0][t]+coordWords[3][t]) {
+						coordWords[0][o]=coordWords[0][o]+30;
+					}
 				}
-
-				if (coordWordsCorrected[1][c] == coordWords[1][o]) {
-					coordWordsCorrected[1][c] = coordWords[1][c]+coordWords[3][c];
+			}
+			if (coordWords[5][o]==0) {
+				for (int t=0; t<coordWords[0].length; t++) {
+					if (o!=t && coordWords[0][o] > coordWords[0][t] &&
+						coordWords[0][o] < coordWords[0][t]+coordWords[2][t]) {
+//						coordWords[1][o]=coordWords[1][o]+30;
+					}
 				}
 			}
 		}
-		return coordWordsCorrected;
+				
+		return coordWords;
 	}
 
 	// determine the fontSize based on the frequency
@@ -98,10 +114,9 @@ public class paintWordCloud {
 
 		// as the maxFont is 100, we range our words to fit in
 		int ratio=80/(maxFreq-minFreq);
-		
+
 		for (int f=0; f<ArrayWords[0].length; f++) {
 			sizeFont[f]=(ratio*Integer.valueOf(ArrayWords[1][f]))+20;
-			System.out.println(sizeFont[f]);
 		}
 		return sizeFont;
 	}
