@@ -1,6 +1,6 @@
 // a working SIMPLE build.gradle for Gradle 6.7 with :
 //   - external dependencies support in the build
-//   - jar AND FatJar support with manifest and dependencies
+//   - FatJar creation with [manifest, dependencies, ressources]
 //   - a run task to work in the project without pain
 
 plugins {
@@ -10,33 +10,33 @@ plugins {
 
 apply plugin: 'java'
 
+application {
+    mainClassName = 'test'
+}
+
 dependencies {
     implementation fileTree('lib')
 }
 
 jar {
-    manifest {
-        attributes("Implementation-Title": "Gradle",
-                   "Implementation-Version": archiveVersion,
-                   "Main-Class": "test")
-    }
-}
-
-task uberJar(type: Jar) {
 	archiveClassifier = 'uber'
 	from sourceSets.main.output
 	dependsOn configurations.runtimeClasspath
+
+        // copy the jar dependencies into the FatJar (aka uberJar)
 	from {
 		configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
 	}
 
-    manifest {
-        attributes("Implementation-Title": "Gradle",
-                   "Implementation-Version": archiveVersion,
-                   "Main-Class": "test")
-    }
-}
+        // create a manifest with the correct main class
+    	manifest {
+        	attributes("Implementation-Title": "Gradle",
+                	   "Implementation-Version": archiveVersion,
+               		   "Main-Class": "test")
+    	}
 
-application {
-    mainClassName = 'test'
+	 // copy all the content of the ressources folder (txt, img, etc) in a ressources folder in the fatJar
+    	into 'ressources', {
+        	from 'ressources'
+    	}
 }
