@@ -1,8 +1,11 @@
-// a working SIMPLE build.gradle for Gradle 6.7 with external dependencies support
-// TODO : add manifest to a project with mainClass
+// a working SIMPLE build.gradle for Gradle 6.7 with :
+//   - external dependencies support in the build
+//   - jar AND FatJar support with manifest and dependencies
+//   - a run task to work in the project without pain
 
 plugins {
     id 'java'
+    id 'application'
 }
 
 apply plugin: 'java'
@@ -32,4 +35,8 @@ task uberJar(type: Jar) {
                    "Implementation-Version": archiveVersion,
                    "Main-Class": "test")
     }
+}
+
+application {
+    mainClassName = 'test'
 }
