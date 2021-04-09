@@ -1,3 +1,5 @@
+// save logs in a dedicated folder in CSV format
+
 var http = require('http');
 var fs = require('fs-extra');
 
