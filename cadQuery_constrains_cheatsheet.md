@@ -33,7 +33,7 @@ constrain(
 ```
 
 
-====
+---
 
 # constrain :
 S'opère toujours entre deux objets avec un nom.
