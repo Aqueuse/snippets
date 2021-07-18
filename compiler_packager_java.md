@@ -17,9 +17,7 @@ Bien que les IDE proposent toujours des options et des commandes pour le faire �
 Il n'est pas toujours nécessaire non plus d'utiliser Maven, Gradle ou Ant pour arriver à un résultat acceptable, bien que ces outils permettent déjà de descendre d'un niveau en terme d'abstraction. Maitriser ces outils demandent du temps et des efforts et ça ne se justifie pas toujours pour des projets occasionnels et/ou modestes.
 
 
-
-Je vous propose donc ce tutoriel, qui prend appuie sur un petit projet maison, avec tout de même assez de sous dossiers et de fichiers ressources pour dépasser le sempiternelle `javac HelloWorld HelloWord.java` et proposer une solution réaliste en terme d'échelle.
-
+Je vous propose donc ce tutoriel, qui prend appuie sur [un petit projet maison](https://github.com/Aqueuse/NekoV2), avec tout de même assez de sous-dossiers et de fichiers ressources pour dépasser le sempiternelle `javac HelloWorld HelloWord.java` et proposer une solution réaliste en terme d'échelle.
 
 
 On travaillera avec un dossier de projet classique avec src/packages/classes, le style de dossier de projet qu'on peut produire dans Eclipse ou Intelij par exemple.
@@ -30,7 +28,7 @@ Je fais volontairement l'impasse sur les librairies externes de façon à clarif
 
 
 
-Pour les curieux, ce projet est un neko, une applet de bureau sous la forme d'un chaton qui poursuit le pointeur de souris :)
+Pour les curieux, ce projet est un neko, une applet de bureau sous la forme d'un chaton qui poursuit le pointeur de la souris :)
 
 
 
@@ -41,6 +39,7 @@ Pour les curieux, ce projet est un neko, une applet de bureau sous la forme d'un
 
 Un jar (une **J**ava **AR**chive) est une archive de type zip améliorée, qui contient nos classes, leurs éventuelles ressources (dont les librairies, les assets, etc.) et surtout un dossier `META-INF` à sa racine, avec un manifeste (MANIFEST.MF), qui permet d'exécuter l'archive comme s'il s'agissait d'un simple exécutable.
 
+```
 ├── META-INF
 │   └── MANIFEST.MF
 ├── neko
@@ -55,6 +54,7 @@ Un jar (une **J**ava **AR**chive) est une archive de type zip améliorée, qui c
 │   └── Toy.class
 │   └── images
 │       └── mes assets
+```
 
 ## Préparation des classes :
 
@@ -86,9 +86,11 @@ On utilise l'utilitaire `jar` avec l'option *-e package.MyMainClass* de façon �
 
 Le manifeste contiendra donc ceci :
 
+```
 > Manifest-Version: 1.0
 > Created-By: 16.0.1 (Oracle Corporation)
 > **Main-Class: neko.Neko**
+```
 
 Et voici la commande à exécuter :
 
