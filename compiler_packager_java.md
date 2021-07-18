@@ -65,7 +65,10 @@ De cette façon, quand on compilera, le programme trouvera toujours les bons che
 Exemple :
 
 ```java
-new ImageIcon(Objects.requireNonNull(Neko.class.getResource("images/" + "left1.GIF")))
+    public static ImageIcon[] animateLeft = {
+            new ImageIcon(Objects.requireNonNull(Neko.class.getResource("images/" + "left1.GIF"))),
+            new ImageIcon(Objects.requireNonNull(Neko.class.getResource("images/" + "left2.GIF")))
+    };
 ```
 
 Ici `Neko.class.getRessource` renvoi vers le chemin de la classe Neko, peu importe où il se trouve au moment de l'exécution.
