@@ -1,0 +1,94 @@
+using System;
+using UnityEngine;
+using System.Net.Sockets;
+using System.IO;
+using System.Collections.Generic;
+
+public class Twitch_chat_Unity : MonoBehaviour {
+	[SerializeField] GameObject gameManager;
+	[SerializeField] GameObject lobby;
+
+	TcpClient _twitchTcpClient;
+	StreamReader _streamReader;
+	StreamWriter _streamWriter;
+
+	SC_Viewers _scViewers;
+
+	const string URL = "irc.chat.twitch.tv";
+	const int Port = 6667;
+	string _user;
+	string _oAuth;
+
+	float _pingCounter;
+
+	private void ConnectToTwitch() {
+		_twitchTcpClient = new TcpClient(URL, Port);
+		_streamReader = new StreamReader(_twitchTcpClient.GetStream());
+		_streamWriter = new StreamWriter(_twitchTcpClient.GetStream());
+
+		_streamWriter.WriteLine("PASS "+_oAuth);
+		_streamWriter.WriteLine("NICK "+_user.ToLower());
+		_streamWriter.WriteLine("JOIN #"+_user.ToLower());
+		_streamWriter.WriteLine("CAP REQ :twitch.tv/commands twitch.tv/tags");
+		_streamWriter.Flush();
+	}
+
+	private void Start() {
+		_user = PlayerPrefs.GetString("username").ToLower();
+		_oAuth = PlayerPrefs.GetString("oauth");
+
+		ConnectToTwitch();
+		_scViewers = new SC_Viewers();
+		// TODO get user id from Twitch API via the server
+        _scViewers.AddViewer(_user, "0000", null);
+    }
+
+	private void Update() {
+		try {
+			// TODO detect if connection is closed
+			// try to reconnect
+
+			_pingCounter += Time.deltaTime;
+
+			if (_pingCounter > 60) {
+				_streamWriter.WriteLine("PING " + URL);
+				_streamWriter.Flush();
+				_pingCounter = 0;
+			}
+
+			if (!_twitchTcpClient.Connected) {
+				ConnectToTwitch();
+			}
+
+			if (_twitchTcpClient.Available > 0) {
+				string message = _streamReader.ReadLine();
+
+				if (message != null && message.Contains("PRIVMSG")) {
+					Dictionary<string, string> parsedMessage = SC_TMI_Message_Parser.ParsedMessage(message.Substring(1));
+					Debug.Log(parsedMessage["IRC-message"]);
+
+					Dictionary<string, string> irCmessage = SC_TMI_Message_Parser.ParsedPrivmsg(parsedMessage["IRC-message"]);
+
+					string userID = parsedMessage["user-id"];
+					string username = irCmessage["username"];
+
+					if (username.Equals(PlayerPrefs.GetString("username"))) {
+						_scViewers.AddViewer(username, userID, null);
+						Debug.Log("player " + username + " added");
+					}
+
+					if (irCmessage["message"].Equals("!play") && SC_Game_Manager.GameState == SC_Game_State.LOBBY) {
+						if (!_scViewers.IsViewerExist(userID)) {
+							_scViewers.AddViewer(username, userID, null);
+							lobby.GetComponent<SC_Lobby>().Initial_Spawn_IA(username, userID);
+						}
+					}
+				}
+			}
+		}
+		catch (IOException ioException) {
+			Debug.Log("DISCONNECTED, RECONNECT");
+			ConnectToTwitch();
+		}
+	}
+}
