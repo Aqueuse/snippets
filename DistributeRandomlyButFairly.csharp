@@ -1,0 +1,37 @@
+public class Plop() {
+
+    void add() {
+        float seed = Random.Range(0, 1);
+ 
+        playersNumber++;
+ 
+        int redTeamLength = redTeam.Count;
+        int blueTeamLength = blueTeam.Count;
+ 
+        float MaxDesequilibre = 0.55f;
+ 
+        if (redTeamLength + blueTeamLength  == 0) {
+            redTeam.Add("player"+playersNumber);
+			return; // on se casse de la fonction
+        }
+ 
+ 
+        float probaRed = blueTeamLength / (blueTeamLength + redTeamLength);
+        float probaBlue = redTeamLength / (blueTeamLength + redTeamLength);
+ 
+        if (probaRed > MaxDesequilibre) {
+            redTeam.Add("player"+playersNumber);
+         }
+         
+         else if (probaBlue > MaxDesequilibre) {
+                blueTeam.Add("player"+playersNumber);
+            }
+            else if (seed < probaRed) {
+                redTeam.Add("player"+playersNumber);
+            }
+            else {
+                blueTeam.Add("player"+playersNumber);
+            }
+ 
+    }
+}
