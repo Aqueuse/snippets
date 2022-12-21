@@ -1,45 +1,51 @@
+using System.Collections.Generic;
 using Random = UnityEngine.Random;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace PrefabSpawner {
     public class Spawner : MonoBehaviour {
-        [SerializeField] private GenericDictionary<GameObject, bool> prefabsWithAlignedInformation;
+        [SerializeField] private GameObject[] prefabs;
         [SerializeField] private GameObject prefabParent;
-        
-        public int quantity;
-    
-        private Mesh _navMesh;
-        private NavMeshTriangulation _triangulatedNavMesh;
+        [SerializeField] private GameObject terrain;
 
-        private Vector3 _point1;
-        private Vector3 _point2;
-    
-        private Vector3 _randomPosition;
-    
+        private Dictionary<GameObject, Vector3> TreesPosition;
+
+        private Mesh _mesh;
+        
         public void SpawnThemAll() {
-            _navMesh = new Mesh();
-            _triangulatedNavMesh = NavMesh.CalculateTriangulation();
-            _navMesh.vertices = _triangulatedNavMesh.vertices;
+            _mesh = terrain.GetComponent<MeshCollider>().sharedMesh;
 
-            for (var i = 0; i < quantity; i++) {
-                var dictionnaryRandomEntry = prefabsWithAlignedInformation
-                    .ElementAt(Random.Range(0, prefabsWithAlignedInformation.Count)).Key; 
+            TreesPosition = new Dictionary<GameObject, Vector3>();
             
-                SpawnPrefab(dictionnaryRandomEntry, prefabsWithAlignedInformation[dictionnaryRandomEntry]);
+            foreach (var meshTriangleIndex in _mesh.triangles) {
+                var vertex1 = _mesh.vertices[_mesh.triangles[meshTriangleIndex]];
+                var vertex2 = _mesh.vertices[_mesh.triangles[meshTriangleIndex + 1]];
+                var vertex3 = _mesh.vertices[_mesh.triangles[meshTriangleIndex + 2]];
+            
+                var random1 = RandomVector3(vertex1, vertex2);
+                var random2 = RandomVector3(random1, vertex3);
+
+                var randomPosition = transform.TransformPoint(random2);
+                
+                if (Physics.Raycast(randomPosition+Vector3.up*10, Vector3.down, out RaycastHit raycastHit)) {
+                    if (raycastHit.transform.tag.Equals("vegetationMask")) {
+                        var spawnedPrefab = Instantiate(prefabs[Random.Range(0, prefabs.Length)], raycastHit.point, Quaternion.identity, prefabParent.transform);
+                        spawnedPrefab.transform.rotation = new Quaternion(0, Random.Range(-1, 1), 0, 0);
+                        TreesPosition.Add(spawnedPrefab, raycastHit.point);
+                    }
+                }
             }
+            Debug.Log("spawned "+TreesPosition.Count+ "Trees");
         }
-
-        private void SpawnPrefab(GameObject prefab, bool isAligned) {
-            _point1 = _navMesh.vertices[Random.Range(0,_navMesh.vertexCount)];
-            _point2 = _navMesh.vertices[Random.Range(0, _navMesh.vertexCount)];
-
-            _randomPosition = Vector3.Lerp(_point1, _point2, Random.value);
         
-            if (NavMesh.SamplePosition(_randomPosition, out NavMeshHit hit, 2f, -1)) {
-                var spawnedPrefab = Instantiate(prefab,  hit.position, Quaternion.identity, prefabParent.transform);
-                spawnedPrefab.transform.rotation = isAligned ? Quaternion.LookRotation(hit.normal) : new Quaternion(0, Random.Range(-1, 1), 0, 0);
+        private Vector3 RandomVector3(Vector3 min, Vector3 max) {
+            return new Vector3(Random.Range(min.x, max.x), Random.Range(min.y, max.y), Random.Range(min.z, max.z));
+        }
+        
+
+        public void RemoveThemAll() {
+            foreach (Transform prefab in prefabParent.transform) {
+                DestroyImmediate(prefab.gameObject);
             }
         }
     }
