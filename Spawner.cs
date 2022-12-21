@@ -35,7 +35,7 @@ namespace PrefabSpawner {
                     }
                 }
             }
-            Debug.Log("spawned "+TreesPosition.Count+ "Trees");
+            Debug.Log("spawned "+TreesPosition.Count+ " trees");
         }
         
         private Vector3 RandomVector3(Vector3 min, Vector3 max) {
