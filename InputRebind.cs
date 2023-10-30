@@ -8,6 +8,19 @@ namespace Settings {
         KEYBOARD = 0,
         GAMEPAD = 1
     }
+    // this code don't use the PlayerInput but set the actions on a class with a code like this :
+    // public InputActionReference jumpActionReference;
+    //
+    // private void OnEnable() {
+    //    jumpActionReference.action.Enable();
+    //        jumpActionReference.action.performed += Jump;
+    // }
+
+    // private void OnDisable() {
+    //    jumpActionReference.action.Disable();
+    //        jumpActionReference.action.performed -= Jump;
+    // }
+
     public class InputRebind : MonoBehaviour {
         [SerializeField] private InputActionReference inputActionReference;
         
